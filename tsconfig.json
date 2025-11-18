@@ -40,7 +40,8 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
+    "typeRoots": ["./node_modules/@types"]
   },
-  "include": ["src"],
+  "include": ["src", "src/game.test.ts"],
   "exclude": ["node_modules"]
 }

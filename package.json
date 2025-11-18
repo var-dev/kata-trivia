@@ -5,8 +5,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node --import tsx --test ./src/game.test.ts",
-    "start": "node --import tsx ./src/game-runner.ts"
+    "test": "node --import tsx --test ./**/*.test.ts",
+    "start": "node --import tsx ./src/game-runner.ts",
+    "nodemon": "nodemon"
   },
   "keywords": [],
   "author": "",
