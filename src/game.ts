@@ -126,9 +126,7 @@ export class Game {
         console.log(this.players[this.currentPlayer] + " was sent to the penalty box");
         this.inPenaltyBox[this.currentPlayer] = true;
     
-        this.currentPlayer += 1;
-        if (this.currentPlayer == this.players.length)
-            this.currentPlayer = 0;
+        this.nextPlayerTurn();
         return true;
     }
 
@@ -141,35 +139,30 @@ export class Game {
               this.purses[this.currentPlayer] + " Gold Coins.");
       
               var winner = this.didPlayerWin();
-              this.currentPlayer += 1;
-              if (this.currentPlayer == this.players.length)
-                this.currentPlayer = 0;
-      
+              this.nextPlayerTurn();
               return winner;
             } else {
-              this.currentPlayer += 1;
-              if (this.currentPlayer == this.players.length)
-                this.currentPlayer = 0;
+              this.nextPlayerTurn();
               return true;
             }
       
       
           } else {
       
-            console.log("Answer was corrent!!!!");
-      
+            console.log("Answer was correct!!!!");
             this.purses[this.currentPlayer]! += 1;
             console.log(this.players[this.currentPlayer] + " now has " +
-                this.purses[this.currentPlayer] + " Gold Coins.");
-      
+            this.purses[this.currentPlayer] + " Gold Coins.");
             var winner = this.didPlayerWin();
-      
-            this.currentPlayer += 1;
-            if (this.currentPlayer == this.players.length)
-                this.currentPlayer = 0;
-      
+            this.nextPlayerTurn();
             return winner;
           }
     }
 
+
+    private nextPlayerTurn() {
+        this.currentPlayer += 1;
+        if (this.currentPlayer == this.players.length)
+            this.currentPlayer = 0;
+    }
 }
