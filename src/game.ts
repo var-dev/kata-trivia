@@ -28,14 +28,18 @@ export class Game {
 
     public add(name: string): boolean {
         this.players.push(name);
-        this.places[this.howManyPlayers()-1] = 0;
-        this.purses[this.howManyPlayers()-1] = 0;
-        this.inPenaltyBox[this.howManyPlayers()-1] = false;
+        this.places[this.lastIndexInPlayersArray()] = 0;
+        this.purses[this.lastIndexInPlayersArray()] = 0;
+        this.inPenaltyBox[this.lastIndexInPlayersArray()] = false;
 
         console.log(name + " was added");
         console.log("They are player number " + this.players.length);
 
         return true;
+    }
+
+    private lastIndexInPlayersArray() {
+        return this.howManyPlayers() - 1;
     }
 
     private howManyPlayers(): number {
@@ -56,7 +60,7 @@ export class Game {
               this.places[this.currentPlayer] = this.places[this.currentPlayer]! - 12;
             }
     
-            console.log(this.players[this.currentPlayer] + "'s new location is " + this.places[this.currentPlayer]);
+            this.reportNewPlayerLocation();
             console.log("The category is " + this.currentCategory());
             this.askQuestion();
           } else {
@@ -70,10 +74,14 @@ export class Game {
             this.places[this.currentPlayer] = this.places[this.currentPlayer]! - 12;
           }
     
-          console.log(this.players[this.currentPlayer] + "'s new location is " + this.places[this.currentPlayer]);
+          this.reportNewPlayerLocation();
           console.log("The category is " + this.currentCategory());
           this.askQuestion();
         }
+    }
+
+    private reportNewPlayerLocation() {
+        console.log(this.players[this.currentPlayer] + "'s new location is " + this.places[this.currentPlayer]);
     }
 
     private askQuestion(): void {
