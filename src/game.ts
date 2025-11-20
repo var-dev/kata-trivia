@@ -50,38 +50,28 @@ export class Game {
         console.log(this.players[this.currentPlayer] + " is the current player");
         console.log("They have rolled a " + roll);
     
-        if (this.inPenaltyBox[this.currentPlayer]) {
-          if (roll % 2 === 0) {
+        if (
+            this.inPenaltyBox[this.currentPlayer]
+          && roll % 2 === 0
+        ) {
             console.log(this.players[this.currentPlayer] + " is not getting out of the penalty box");
             this.isGettingOutOfPenaltyBox = false;
-          } else {
-            this.isGettingOutOfPenaltyBox = true;
-    
+            return
+        } 
+        if (this.inPenaltyBox[this.currentPlayer]){
             console.log(this.players[this.currentPlayer] + " is getting out of the penalty box");
-            
-            this.places[this.currentPlayer] = this.places[this.currentPlayer]! + roll;
-            if (this.places[this.currentPlayer]! > 11) {
-              this.places[this.currentPlayer] = this.places[this.currentPlayer]! - 12;
-            }
-    
-            this.reportNewPlayerLocation();
-            console.log("The category is " + this.currentCategory());
-            this.askQuestion();
-          }
-        } else {
-    
-          this.places[this.currentPlayer] = this.places[this.currentPlayer]! + roll;
-          if (this.places[this.currentPlayer]! > 11) {
-            this.places[this.currentPlayer] = this.places[this.currentPlayer]! - 12;
-          }
-    
-          this.reportNewPlayerLocation();
-          console.log("The category is " + this.currentCategory());
-          this.askQuestion();
+            this.isGettingOutOfPenaltyBox = true;
         }
+        this.reportNewPlayerLocation(roll);
+        console.log("The category is " + this.currentCategory());
+        this.askQuestion();
     }
 
-    private reportNewPlayerLocation() {
+    private reportNewPlayerLocation(roll:number) {
+        this.places[this.currentPlayer] = this.places[this.currentPlayer]! + roll;
+        if (this.places[this.currentPlayer]! > 11) {
+            this.places[this.currentPlayer] = this.places[this.currentPlayer]! - 12;
+        }
         console.log(this.players[this.currentPlayer] + "'s new location is " + this.places[this.currentPlayer]);
     }
 
@@ -119,7 +109,7 @@ export class Game {
     }
 
     private didPlayerWin(): boolean {
-        return !(this.purses[this.currentPlayer] == 6)
+        return (this.purses[this.currentPlayer] !== 6)
     }
 
     public wrongAnswer(): boolean {
