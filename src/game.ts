@@ -26,7 +26,7 @@ export class Game {
     private players: Array<Player> = [];
     private inPenaltyBox: Array<boolean> = [];
     private currentPlayer: number = 0;
-    private currPlayer: Player | undefined;
+    private currPlayer: Player = this.players[0]!;
 
     private popQuestions: Array<string> = [];
     private scienceQuestions: Array<string> = [];
@@ -50,7 +50,7 @@ export class Game {
     public add(name: string): boolean {
         this.players.push(new Player(name, this.players.length + 1));
         this.inPenaltyBox[this.lastIndexInPlayersArray()] = false;
-        this.currPlayer = this.players[0]
+        this.currPlayer = this.players[0]!;
         return true;
     }
 
@@ -155,6 +155,6 @@ export class Game {
         this.currentPlayer += 1;
         if (this.currentPlayer == this.players.length)
             this.currentPlayer = 0;
-        this.currPlayer = this.players[this.currentPlayer];
+        this.currPlayer = this.players[this.currentPlayer]!;
     }
 }
