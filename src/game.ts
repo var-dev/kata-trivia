@@ -1,6 +1,7 @@
 class Player {
     public isGettingOutOfPenaltyBox: boolean = false;
     public purse: number = 0;
+    private playerPlace = 0;
     constructor(public readonly name: string, public readonly playerNumber: number) {
         console.log(name + " was added");
         console.log("They are player number " + this.playerNumber);
@@ -8,12 +9,21 @@ class Player {
     public toString(): string {
         return this.name;
     }
+    set currentPlace(roll: number) {
+        // placeholder
+        this.playerPlace += roll;
+        if (this.playerPlace > 11) {
+            this.playerPlace -= 12;
+        }
+    }
+    get currentPlace(): number {
+        return this.playerPlace;
+    }
 }
 
 export class Game {
 
     private players: Array<Player> = [];
-    private places: Array<number> = [];
     private inPenaltyBox: Array<boolean> = [];
     private currentPlayer: number = 0;
 
@@ -38,11 +48,7 @@ export class Game {
 
     public add(name: string): boolean {
         this.players.push(new Player(name, this.players.length + 1));
-        this.places[this.lastIndexInPlayersArray()] = 0;
         this.inPenaltyBox[this.lastIndexInPlayersArray()] = false;
-
-        
-
         return true;
     }
 
@@ -76,11 +82,8 @@ export class Game {
     }
 
     private reportNewPlayerLocation(roll:number) {
-        this.places[this.currentPlayer] = this.places[this.currentPlayer]! + roll;
-        if (this.places[this.currentPlayer]! > 11) {
-            this.places[this.currentPlayer] = this.places[this.currentPlayer]! - 12;
-        }
-        console.log(this.players[this.currentPlayer] + "'s new location is " + this.places[this.currentPlayer]);
+        this.players[this.currentPlayer]!.currentPlace = roll;
+        console.log(this.players[this.currentPlayer] + "'s new location is " + this.players[this.currentPlayer]!.currentPlace);
     }
 
     private askQuestion(): void {
@@ -95,23 +98,23 @@ export class Game {
     }
 
     private currentCategory(): string {
-        if (this.places[this.currentPlayer] == 0)
+        if (this.players[this.currentPlayer]!.currentPlace == 0)
             return 'Pop';
-        if (this.places[this.currentPlayer] == 4)
+        if (this.players[this.currentPlayer]!.currentPlace == 4)
             return 'Pop';
-        if (this.places[this.currentPlayer] == 8)
+        if (this.players[this.currentPlayer]!.currentPlace == 8)
             return 'Pop';
-        if (this.places[this.currentPlayer] == 1)
+        if (this.players[this.currentPlayer]!.currentPlace == 1)
             return 'Science';
-        if (this.places[this.currentPlayer] == 5)
+        if (this.players[this.currentPlayer]!.currentPlace == 5)
             return 'Science';
-        if (this.places[this.currentPlayer] == 9)
+        if (this.players[this.currentPlayer]!.currentPlace == 9)
             return 'Science';
-        if (this.places[this.currentPlayer] == 2)
+        if (this.players[this.currentPlayer]!.currentPlace == 2)
             return 'Sports';
-        if (this.places[this.currentPlayer] == 6)
+        if (this.players[this.currentPlayer]!.currentPlace == 6)
             return 'Sports';
-        if (this.places[this.currentPlayer] == 10)
+        if (this.players[this.currentPlayer]!.currentPlace == 10)
             return 'Sports';
         return 'Rock';
     }
