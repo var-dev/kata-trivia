@@ -1,4 +1,6 @@
 class Player {
+    public isGettingOutOfPenaltyBox: boolean = false;
+    public purse: number = 0;
     constructor(public readonly name: string, public readonly playerNumber: number) {
         console.log(name + " was added");
         console.log("They are player number " + this.playerNumber);
@@ -12,10 +14,8 @@ export class Game {
 
     private players: Array<Player> = [];
     private places: Array<number> = [];
-    private purses: Array<number> = [];
     private inPenaltyBox: Array<boolean> = [];
     private currentPlayer: number = 0;
-    private isGettingOutOfPenaltyBox: boolean = false;
 
     private popQuestions: Array<string> = [];
     private scienceQuestions: Array<string> = [];
@@ -39,7 +39,6 @@ export class Game {
     public add(name: string): boolean {
         this.players.push(new Player(name, this.players.length + 1));
         this.places[this.lastIndexInPlayersArray()] = 0;
-        this.purses[this.lastIndexInPlayersArray()] = 0;
         this.inPenaltyBox[this.lastIndexInPlayersArray()] = false;
 
         
@@ -64,12 +63,12 @@ export class Game {
           && roll % 2 === 0
         ) {
             console.log(this.players[this.currentPlayer] + " is not getting out of the penalty box");
-            this.isGettingOutOfPenaltyBox = false;
+            this.players[this.currentPlayer]!.isGettingOutOfPenaltyBox = false;
             return
         } 
         if (this.inPenaltyBox[this.currentPlayer]){
             console.log(this.players[this.currentPlayer] + " is getting out of the penalty box");
-            this.isGettingOutOfPenaltyBox = true;
+            this.players[this.currentPlayer]!.isGettingOutOfPenaltyBox = true;
         }
         this.reportNewPlayerLocation(roll);
         console.log("The category is " + this.currentCategory());
@@ -118,7 +117,7 @@ export class Game {
     }
 
     private didPlayerWin(): boolean {
-        return (this.purses[this.currentPlayer] !== 6)
+        return (this.players[this.currentPlayer]?.purse !== 6)
     }
 
     public wrongAnswer(): boolean {
@@ -132,15 +131,15 @@ export class Game {
 
     public wasCorrectlyAnswered(): boolean {
         if (this.inPenaltyBox[this.currentPlayer]
-            && !this.isGettingOutOfPenaltyBox
+            && !this.players[this.currentPlayer]!.isGettingOutOfPenaltyBox
         ) {
             this.nextPlayerTurn();
             return true;
         }
         console.log("Answer was correct!!!!");
-        this.purses[this.currentPlayer]! += 1;
+        this.players[this.currentPlayer]!.purse += 1;
         console.log(this.players[this.currentPlayer] + " now has " +
-        this.purses[this.currentPlayer] + " Gold Coins.");
+        this.players[this.currentPlayer]?.purse + " Gold Coins.");
         var winner = this.didPlayerWin();
         this.nextPlayerTurn();
         return winner;
