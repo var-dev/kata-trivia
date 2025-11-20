@@ -1,6 +1,16 @@
+class Player {
+    constructor(public readonly name: string, public readonly playerNumber: number) {
+        console.log(name + " was added");
+        console.log("They are player number " + this.playerNumber);
+    }
+    public toString(): string {
+        return this.name;
+    }
+}
+
 export class Game {
 
-    private players: Array<string> = [];
+    private players: Array<Player> = [];
     private places: Array<number> = [];
     private purses: Array<number> = [];
     private inPenaltyBox: Array<boolean> = [];
@@ -27,13 +37,12 @@ export class Game {
     }
 
     public add(name: string): boolean {
-        this.players.push(name);
+        this.players.push(new Player(name, this.players.length + 1));
         this.places[this.lastIndexInPlayersArray()] = 0;
         this.purses[this.lastIndexInPlayersArray()] = 0;
         this.inPenaltyBox[this.lastIndexInPlayersArray()] = false;
 
-        console.log(name + " was added");
-        console.log("They are player number " + this.players.length);
+        
 
         return true;
     }
