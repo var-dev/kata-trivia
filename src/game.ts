@@ -51,7 +51,10 @@ export class Game {
         console.log("They have rolled a " + roll);
     
         if (this.inPenaltyBox[this.currentPlayer]) {
-          if (roll % 2 != 0) {
+          if (roll % 2 === 0) {
+            console.log(this.players[this.currentPlayer] + " is not getting out of the penalty box");
+            this.isGettingOutOfPenaltyBox = false;
+          } else {
             this.isGettingOutOfPenaltyBox = true;
     
             console.log(this.players[this.currentPlayer] + " is getting out of the penalty box");
@@ -64,9 +67,6 @@ export class Game {
             this.reportNewPlayerLocation();
             console.log("The category is " + this.currentCategory());
             this.askQuestion();
-          } else {
-            console.log(this.players[this.currentPlayer] + " is not getting out of the penalty box");
-            this.isGettingOutOfPenaltyBox = false;
           }
         } else {
     
