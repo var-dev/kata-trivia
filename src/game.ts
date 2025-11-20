@@ -55,6 +55,7 @@ export class Game {
             this.isGettingOutOfPenaltyBox = true;
     
             console.log(this.players[this.currentPlayer] + " is getting out of the penalty box");
+            
             this.places[this.currentPlayer] = this.places[this.currentPlayer]! + roll;
             if (this.places[this.currentPlayer]! > 11) {
               this.places[this.currentPlayer] = this.places[this.currentPlayer]! - 12;
@@ -131,32 +132,19 @@ export class Game {
     }
 
     public wasCorrectlyAnswered(): boolean {
-        if (this.inPenaltyBox[this.currentPlayer]) {
-            if (this.isGettingOutOfPenaltyBox) {
-              console.log('Answer was correct!!!!');
-              this.purses[this.currentPlayer]! += 1;
-              console.log(this.players[this.currentPlayer] + " now has " +
-              this.purses[this.currentPlayer] + " Gold Coins.");
-      
-              var winner = this.didPlayerWin();
-              this.nextPlayerTurn();
-              return winner;
-            } else {
-              this.nextPlayerTurn();
-              return true;
-            }
-      
-      
-          } else {
-      
-            console.log("Answer was correct!!!!");
-            this.purses[this.currentPlayer]! += 1;
-            console.log(this.players[this.currentPlayer] + " now has " +
-            this.purses[this.currentPlayer] + " Gold Coins.");
-            var winner = this.didPlayerWin();
+        if (this.inPenaltyBox[this.currentPlayer]
+            && !this.isGettingOutOfPenaltyBox
+        ) {
             this.nextPlayerTurn();
-            return winner;
-          }
+            return true;
+        }
+        console.log("Answer was correct!!!!");
+        this.purses[this.currentPlayer]! += 1;
+        console.log(this.players[this.currentPlayer] + " now has " +
+        this.purses[this.currentPlayer] + " Gold Coins.");
+        var winner = this.didPlayerWin();
+        this.nextPlayerTurn();
+        return winner;
     }
 
 
