@@ -1,6 +1,33 @@
+interface PenaltyBox{
+    get isPenalty():boolean;
+    reportStatus(roll:number):void;
+    
+}
+class PenaltyBoxIn implements PenaltyBox{
+    constructor(private player:Player){}
+    get isPenalty(): boolean { return true }
+    reportStatus(roll: number): void {
+        
+        if (roll % 2 !== 0) {
+            console.log(this.player.name + " is not getting out of the penalty box");
+        } else {
+            console.log(this.player.name + " is getting out of the penalty box")
+            this.player.getOutOfPenaltyBox();
+        }
+    }
+}
+
+class PenaltyBoxOut implements PenaltyBox{
+    constructor(private player:Player){}
+    get isPenalty(): boolean { return false }
+    reportStatus(roll: number): void {}
+}
+
+
 class Player {
     public isGettingOutOfPenaltyBox: boolean = false;
     public purse: number = 0;
+    private penaltyBox: PenaltyBox = new PenaltyBoxOut(this);
     private playerPlace = 0;
     constructor(public readonly name: string, public readonly playerNumber: number) {
         console.log(name + " was added");
@@ -10,7 +37,6 @@ class Player {
         return this.name;
     }
     set currentPlace(roll: number) {
-        // placeholder
         this.playerPlace += roll;
         if (this.playerPlace > 11) {
             this.playerPlace -= 12;
@@ -18,6 +44,12 @@ class Player {
     }
     get currentPlace(): number {
         return this.playerPlace;
+    }
+    goToPenaltyBox(){
+        this.penaltyBox = new PenaltyBoxIn(this);
+    }
+    getOutOfPenaltyBox(){
+        this.penaltyBox = new PenaltyBoxOut(this);
     }
 }
 
@@ -129,6 +161,7 @@ export class Game {
         console.log('Question was incorrectly answered');
         console.log(this.currPlayer! + " was sent to the penalty box");
         this.inPenaltyBox[this.currentPlayer] = true;
+        this.currPlayer.goToPenaltyBox();
     
         this.nextPlayerTurn();
         return true;
