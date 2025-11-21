@@ -1,18 +1,31 @@
 interface PenaltyBox{
     get isPenalty():boolean;
     reportStatus(roll:number):void;
+    isAdvancing(roll: number): boolean
+    calculatePlace(currentPlace: number, roll:number):number;
     
 }
 class PenaltyBoxIn implements PenaltyBox{
     constructor(private player:Player){}
     get isPenalty(): boolean { return true }
+    isAdvancing(roll:number): boolean {
+        return (roll % 2 !== 0)
+    }
+    calculatePlace(currentPlace: number, roll:number):number{
+        if(!this.isAdvancing(roll)){
+            return currentPlace;
+        }
+        let playerNewPlace = currentPlace + roll;
+        if (playerNewPlace > 11) {
+            playerNewPlace -= 12;
+        }
+        return playerNewPlace
+    }
     reportStatus(roll: number): void {
-        
-        if (roll % 2 !== 0) {
-            console.log(this.player.name + " is not getting out of the penalty box");
-        } else {
+        if (this.isAdvancing(roll)) {
             console.log(this.player.name + " is getting out of the penalty box")
-            this.player.getOutOfPenaltyBox();
+        } else {
+            console.log(this.player.name + " is not getting out of the penalty box");
         }
     }
 }
@@ -20,6 +33,14 @@ class PenaltyBoxIn implements PenaltyBox{
 class PenaltyBoxOut implements PenaltyBox{
     constructor(private player:Player){}
     get isPenalty(): boolean { return false }
+    isAdvancing(roll:number): boolean { return true}
+    calculatePlace(currentPlace: number, roll: number): number {
+        let playerPlace = currentPlace + roll;
+            if (playerPlace > 11) {
+                playerPlace -= 12;
+            }
+        return playerPlace
+    }
     reportStatus(roll: number): void {}
 }
 
@@ -37,13 +58,8 @@ class Player {
         return this.name;
     }
     set currentPlace(roll: number) {
-        this.isAdvancing = !(this.isPenaltyBox && (roll % 2 === 0))
-        if(this.isAdvancing){
-            this.playerPlace += roll;
-            if (this.playerPlace > 11) {
-                this.playerPlace -= 12;
-            }
-        }
+        this.isAdvancing = this.penaltyBox.isAdvancing(roll)
+        this.playerPlace = this.penaltyBox.calculatePlace(this.playerPlace, roll);
     }
     get currentPlace(): number {
         return this.playerPlace;
@@ -100,20 +116,12 @@ export class Game {
         this.currPlayer.currentPlace = roll;
         console.log(this.currPlayer + " is the current player");
         console.log("They have rolled a " + roll);
-    
-        if (!this.currPlayer.isAdvancing
-        ) {
-            
-            console.log(this.currPlayer + " is not getting out of the penalty box");
-            return
+        this.currPlayer.reportPenaltyStatus(roll);
+        if (this.currPlayer.isAdvancing) {
+            console.log(this.currPlayer + "'s new location is " + this.currPlayer.currentPlace);
+            console.log("The category is " + this.currentCategory());
+            this.askQuestion();
         }
-        
-        if (this.currPlayer.isPenaltyBox){
-            console.log(this.currPlayer + " is getting out of the penalty box");
-        }
-        console.log(this.currPlayer + "'s new location is " + this.currPlayer.currentPlace);
-        console.log("The category is " + this.currentCategory());
-        this.askQuestion();
     }
 
     private askQuestion(): void {
@@ -157,7 +165,6 @@ export class Game {
         console.log('Question was incorrectly answered');
         console.log(this.currPlayer! + " was sent to the penalty box");
         this.currPlayer.goToPenaltyBox();
-    
         this.nextPlayerTurn();
         return true;
     }
@@ -167,11 +174,10 @@ export class Game {
             this.nextPlayerTurn();
             return true;
         }
-        console.log("Answer was correct!!!!");
         this.currPlayer!.purse += 1;
-        console.log(this.currPlayer! + " now has " +
-        this.currPlayer!?.purse + " Gold Coins.");
         var winner = this.didPlayerWin();
+        console.log("Answer was correct!!!!");
+        console.log(this.currPlayer + " now has " + this.currPlayer!?.purse + " Gold Coins.");
         this.nextPlayerTurn();
         return winner;
     }
@@ -179,7 +185,7 @@ export class Game {
 
     private nextPlayerTurn() {
         this.currentPlayer += 1;
-        if (this.currentPlayer == this.players.length)
+        if (this.currentPlayer === this.players.length)
             this.currentPlayer = 0;
         this.currPlayer = this.players[this.currentPlayer]!;
     }
