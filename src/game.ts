@@ -1,5 +1,4 @@
 interface PenaltyBox{
-    get isPenalty():boolean;
     reportStatus(roll:number):void;
     isAdvancing(roll: number): boolean
     calculatePlace(currentPlace: number, roll:number):number;
@@ -7,7 +6,6 @@ interface PenaltyBox{
 }
 class PenaltyBoxIn implements PenaltyBox{
     constructor(private player:Player){}
-    get isPenalty(): boolean { return true }
     isAdvancing(roll:number): boolean {
         return (roll % 2 !== 0)
     }
@@ -32,7 +30,6 @@ class PenaltyBoxIn implements PenaltyBox{
 
 class PenaltyBoxOut implements PenaltyBox{
     constructor(private player:Player){}
-    get isPenalty(): boolean { return false }
     isAdvancing(roll:number): boolean { return true}
     calculatePlace(currentPlace: number, roll: number): number {
         let playerPlace = currentPlace + roll;
@@ -73,9 +70,6 @@ class Player {
     getOutOfPenaltyBox(){
         this.penaltyBox = new PenaltyBoxOut(this);
     }
-    get isPenaltyBox():boolean{
-        return this.penaltyBox.isPenalty;
-    }
     reportPenaltyStatus(roll: number){
         this.penaltyBox.reportStatus(roll);
     }
@@ -84,8 +78,8 @@ class Player {
 export class Game {
 
     private players: Array<Player> = [];
-    private currentPlayer: number = 0;
-    private currPlayer: Player = this.players[0]!;
+    private currentPlayerIndex: number = 0;
+    private currentPlayer: Player = this.players[0]!;
 
     private popQuestions: Array<string> = [];
     private scienceQuestions: Array<string> = [];
@@ -108,17 +102,17 @@ export class Game {
 
     public add(name: string): boolean {
         this.players.push(new Player(name, this.players.length + 1));
-        this.currPlayer = this.players[0]!;
+        this.currentPlayer = this.players[0]!;
         return true;
     }
 
     public roll(roll: number) {
-        this.currPlayer.currentPlace = roll;
-        console.log(this.currPlayer + " is the current player");
+        this.currentPlayer.currentPlace = roll;
+        console.log(this.currentPlayer + " is the current player");
         console.log("They have rolled a " + roll);
-        this.currPlayer.reportPenaltyStatus(roll);
-        if (this.currPlayer.isAdvancing) {
-            console.log(this.currPlayer + "'s new location is " + this.currPlayer.currentPlace);
+        this.currentPlayer.reportPenaltyStatus(roll);
+        if (this.currentPlayer.isAdvancing) {
+            console.log(this.currentPlayer + "'s new location is " + this.currentPlayer.currentPlace);
             console.log("The category is " + this.currentCategory());
             this.askQuestion();
         }
@@ -136,58 +130,58 @@ export class Game {
     }
 
     private currentCategory(): string {
-        if (this.currPlayer!.currentPlace == 0)
+        if (this.currentPlayer!.currentPlace == 0)
             return 'Pop';
-        if (this.currPlayer!.currentPlace == 4)
+        if (this.currentPlayer!.currentPlace == 4)
             return 'Pop';
-        if (this.currPlayer!.currentPlace == 8)
+        if (this.currentPlayer!.currentPlace == 8)
             return 'Pop';
-        if (this.currPlayer!.currentPlace == 1)
+        if (this.currentPlayer!.currentPlace == 1)
             return 'Science';
-        if (this.currPlayer!.currentPlace == 5)
+        if (this.currentPlayer!.currentPlace == 5)
             return 'Science';
-        if (this.currPlayer!.currentPlace == 9)
+        if (this.currentPlayer!.currentPlace == 9)
             return 'Science';
-        if (this.currPlayer!.currentPlace == 2)
+        if (this.currentPlayer!.currentPlace == 2)
             return 'Sports';
-        if (this.currPlayer!.currentPlace == 6)
+        if (this.currentPlayer!.currentPlace == 6)
             return 'Sports';
-        if (this.currPlayer!.currentPlace == 10)
+        if (this.currentPlayer!.currentPlace == 10)
             return 'Sports';
         return 'Rock';
     }
 
     private didPlayerWin(): boolean {
-        return (this.currPlayer!?.purse !== 6)
+        return (this.currentPlayer!?.purse !== 6)
     }
 
     public wrongAnswer(): boolean {
         console.log('Question was incorrectly answered');
-        console.log(this.currPlayer! + " was sent to the penalty box");
-        this.currPlayer.goToPenaltyBox();
+        console.log(this.currentPlayer! + " was sent to the penalty box");
+        this.currentPlayer.goToPenaltyBox();
         this.nextPlayerTurn();
         return true;
     }
 
     public wasCorrectlyAnswered(): boolean {
-        if (!this.currPlayer.isAdvancing) {
+        if (!this.currentPlayer.isAdvancing) {
             this.nextPlayerTurn();
             return true;
         }
-        this.currPlayer!.purse += 1;
+        this.currentPlayer!.purse += 1;
         var winner = this.didPlayerWin();
         console.log("Answer was correct!!!!");
-        console.log(this.currPlayer + " now has " + this.currPlayer!?.purse + " Gold Coins.");
+        console.log(this.currentPlayer + " now has " + this.currentPlayer!?.purse + " Gold Coins.");
         this.nextPlayerTurn();
         return winner;
     }
 
 
     private nextPlayerTurn() {
-        this.currentPlayer += 1;
-        if (this.currentPlayer === this.players.length)
-            this.currentPlayer = 0;
-        this.currPlayer = this.players[this.currentPlayer]!;
+        this.currentPlayerIndex += 1;
+        if (this.currentPlayerIndex === this.players.length)
+            this.currentPlayerIndex = 0;
+        this.currentPlayer = this.players[this.currentPlayerIndex]!;
     }
 }
 
