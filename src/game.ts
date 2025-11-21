@@ -94,14 +94,6 @@ export class Game {
         return true;
     }
 
-    private lastIndexInPlayersArray() {
-        return this.howManyPlayers() - 1;
-    }
-
-    private howManyPlayers(): number {
-        return this.players.length;
-    }
-
     public roll(roll: number) {
         this.currentRoll = roll;
         console.log(this.currPlayer + " is the current player");
