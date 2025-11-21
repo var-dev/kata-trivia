@@ -28,6 +28,7 @@ class Player {
     public purse: number = 0;
     private penaltyBox: PenaltyBox = new PenaltyBoxOut(this);
     private playerPlace = 0;
+    public isAdvancing = true;
     constructor(public readonly name: string, public readonly playerNumber: number) {
         console.log(name + " was added");
         console.log("They are player number " + this.playerNumber);
@@ -36,13 +37,19 @@ class Player {
         return this.name;
     }
     set currentPlace(roll: number) {
-        this.playerPlace += roll;
-        if (this.playerPlace > 11) {
-            this.playerPlace -= 12;
+        this.isAdvancing = !(this.isPenaltyBox && (roll % 2 === 0))
+        if(this.isAdvancing){
+            this.playerPlace += roll;
+            if (this.playerPlace > 11) {
+                this.playerPlace -= 12;
+            }
         }
     }
     get currentPlace(): number {
         return this.playerPlace;
+    }
+    get isCurrentPlaceEven(){
+        return this.playerPlace % 2 === 0;
     }
     goToPenaltyBox(){
         this.penaltyBox = new PenaltyBoxIn(this);
@@ -56,10 +63,6 @@ class Player {
     reportPenaltyStatus(roll: number){
         this.penaltyBox.reportStatus(roll);
     }
-    reportNewPlayerLocation(roll:number) {
-        this.currentPlace = roll;
-        console.log(this.name + "'s new location is " + this.currentPlace);
-    }
 }
 
 export class Game {
@@ -72,7 +75,6 @@ export class Game {
     private scienceQuestions: Array<string> = [];
     private sportsQuestions: Array<string> = [];
     private rockQuestions: Array<string> = [];
-    currentRoll: number = 0;
 
     constructor() {
 
@@ -95,12 +97,11 @@ export class Game {
     }
 
     public roll(roll: number) {
-        this.currentRoll = roll;
+        this.currPlayer.currentPlace = roll;
         console.log(this.currPlayer + " is the current player");
         console.log("They have rolled a " + roll);
     
-        if (this.currPlayer.isPenaltyBox &&
-            isRollEven(roll)
+        if (!this.currPlayer.isAdvancing
         ) {
             
             console.log(this.currPlayer + " is not getting out of the penalty box");
@@ -108,9 +109,9 @@ export class Game {
         }
         
         if (this.currPlayer.isPenaltyBox){
-            console.log(this.currPlayer! + " is getting out of the penalty box");
+            console.log(this.currPlayer + " is getting out of the penalty box");
         }
-        this.currPlayer.reportNewPlayerLocation(roll)
+        console.log(this.currPlayer + "'s new location is " + this.currPlayer.currentPlace);
         console.log("The category is " + this.currentCategory());
         this.askQuestion();
     }
@@ -162,9 +163,7 @@ export class Game {
     }
 
     public wasCorrectlyAnswered(): boolean {
-        if (this.currPlayer.isPenaltyBox
-            && isRollEven(this.currentRoll)
-        ) {
+        if (!this.currPlayer.isAdvancing) {
             this.nextPlayerTurn();
             return true;
         }
@@ -184,8 +183,5 @@ export class Game {
             this.currentPlayer = 0;
         this.currPlayer = this.players[this.currentPlayer]!;
     }
-}
-function isRollEven(roll: number) {
-    return roll % 2 === 0;
 }
 
