@@ -51,12 +51,21 @@ class Player {
     getOutOfPenaltyBox(){
         this.penaltyBox = new PenaltyBoxOut(this);
     }
+    get isPenaltyBox():boolean{
+        return this.penaltyBox.isPenalty;
+    }
+    reportPenaltyStatus(roll: number){
+        this.penaltyBox.reportStatus(roll);
+    }
+    reportNewPlayerLocation(roll:number) {
+        this.currentPlace = roll;
+        console.log(this.name + "'s new location is " + this.currentPlace);
+    }
 }
 
 export class Game {
 
     private players: Array<Player> = [];
-    private inPenaltyBox: Array<boolean> = [];
     private currentPlayer: number = 0;
     private currPlayer: Player = this.players[0]!;
 
@@ -81,7 +90,6 @@ export class Game {
 
     public add(name: string): boolean {
         this.players.push(new Player(name, this.players.length + 1));
-        this.inPenaltyBox[this.lastIndexInPlayersArray()] = false;
         this.currPlayer = this.players[0]!;
         return true;
     }
@@ -98,26 +106,22 @@ export class Game {
         console.log(this.currPlayer + " is the current player");
         console.log("They have rolled a " + roll);
     
-        if (
-            this.inPenaltyBox[this.currentPlayer]
-          && roll % 2 === 0
+        if (this.currPlayer.isPenaltyBox &&
+            roll % 2 === 0
         ) {
+            
             console.log(this.currPlayer + " is not getting out of the penalty box");
             this.currPlayer!.isGettingOutOfPenaltyBox = false;
             return
-        } 
-        if (this.inPenaltyBox[this.currentPlayer]){
+        }
+        
+        if (this.currPlayer.isPenaltyBox){
             console.log(this.currPlayer! + " is getting out of the penalty box");
             this.currPlayer!.isGettingOutOfPenaltyBox = true;
         }
-        this.reportNewPlayerLocation(roll);
+        this.currPlayer.reportNewPlayerLocation(roll)
         console.log("The category is " + this.currentCategory());
         this.askQuestion();
-    }
-
-    private reportNewPlayerLocation(roll:number) {
-        this.currPlayer!.currentPlace = roll;
-        console.log(this.currPlayer! + "'s new location is " + this.currPlayer!.currentPlace);
     }
 
     private askQuestion(): void {
@@ -160,7 +164,6 @@ export class Game {
     public wrongAnswer(): boolean {
         console.log('Question was incorrectly answered');
         console.log(this.currPlayer! + " was sent to the penalty box");
-        this.inPenaltyBox[this.currentPlayer] = true;
         this.currPlayer.goToPenaltyBox();
     
         this.nextPlayerTurn();
@@ -168,8 +171,8 @@ export class Game {
     }
 
     public wasCorrectlyAnswered(): boolean {
-        if (this.inPenaltyBox[this.currentPlayer]
-            && !this.currPlayer!.isGettingOutOfPenaltyBox
+        if (this.currPlayer.isPenaltyBox
+            && !this.currPlayer.isGettingOutOfPenaltyBox
         ) {
             this.nextPlayerTurn();
             return true;
