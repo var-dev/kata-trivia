@@ -25,7 +25,6 @@ class PenaltyBoxOut implements PenaltyBox{
 
 
 class Player {
-    public isGettingOutOfPenaltyBox: boolean = false;
     public purse: number = 0;
     private penaltyBox: PenaltyBox = new PenaltyBoxOut(this);
     private playerPlace = 0;
@@ -73,6 +72,7 @@ export class Game {
     private scienceQuestions: Array<string> = [];
     private sportsQuestions: Array<string> = [];
     private rockQuestions: Array<string> = [];
+    currentRoll: number = 0;
 
     constructor() {
 
@@ -103,21 +103,20 @@ export class Game {
     }
 
     public roll(roll: number) {
+        this.currentRoll = roll;
         console.log(this.currPlayer + " is the current player");
         console.log("They have rolled a " + roll);
     
         if (this.currPlayer.isPenaltyBox &&
-            roll % 2 === 0
+            isRollEven(roll)
         ) {
             
             console.log(this.currPlayer + " is not getting out of the penalty box");
-            this.currPlayer!.isGettingOutOfPenaltyBox = false;
             return
         }
         
         if (this.currPlayer.isPenaltyBox){
             console.log(this.currPlayer! + " is getting out of the penalty box");
-            this.currPlayer!.isGettingOutOfPenaltyBox = true;
         }
         this.currPlayer.reportNewPlayerLocation(roll)
         console.log("The category is " + this.currentCategory());
@@ -172,7 +171,7 @@ export class Game {
 
     public wasCorrectlyAnswered(): boolean {
         if (this.currPlayer.isPenaltyBox
-            && !this.currPlayer.isGettingOutOfPenaltyBox
+            && isRollEven(this.currentRoll)
         ) {
             this.nextPlayerTurn();
             return true;
@@ -194,3 +193,7 @@ export class Game {
         this.currPlayer = this.players[this.currentPlayer]!;
     }
 }
+function isRollEven(roll: number) {
+    return roll % 2 === 0;
+}
+
