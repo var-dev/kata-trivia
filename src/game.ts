@@ -63,8 +63,8 @@ class Player {
     }
 
     private _purse: number = 0;
-    private penaltyBox: PenaltyBox = new PenaltyBoxOut();
-    private playerPlace = 0;
+    private _penaltyBox: PenaltyBox = new PenaltyBoxOut();
+    private _playerPlace = 0;
     private _isAdvancing = true;
 
 
@@ -75,11 +75,11 @@ class Player {
         return this.name;
     }
     set currentPlace(roll: number) {
-        this._isAdvancing = this.penaltyBox.isPlayerAdvancing(roll)
-        this.playerPlace = this.penaltyBox.calculatePlace(this.playerPlace, roll);
+        this._isAdvancing = this._penaltyBox.isPlayerAdvancing(roll)
+        this._playerPlace = this._penaltyBox.calculatePlace(this._playerPlace, roll);
     }
     get currentPlace(): number {
-        return this.playerPlace;
+        return this._playerPlace;
     }
      public get purse(): number {
         return this._purse;
@@ -91,13 +91,13 @@ class Player {
         return this._isAdvancing;
     }
     goToPenaltyBox(){
-        this.penaltyBox = new PenaltyBoxIn();
+        this._penaltyBox = new PenaltyBoxIn();
     }
     getOutOfPenaltyBox(){
-        this.penaltyBox = new PenaltyBoxOut();
+        this._penaltyBox = new PenaltyBoxOut();
     }
     consoleLogPenaltyStatus(roll: number){
-        const result = this.penaltyBox.reportStatus(roll, this.name);
+        const result = this._penaltyBox.reportStatus(roll, this.name);
         if(result !== ''){
             console.log(result);
         }
