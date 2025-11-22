@@ -1,3 +1,5 @@
+type PlayerName = string;
+type PlayerNumber = number;
 interface PenaltyBox{
     reportStatus(roll:number, playerName:string):string;
     isPlayerAdvancing(roll: number): boolean
@@ -41,6 +43,22 @@ class PenaltyBoxOut implements PenaltyBox{
 
 
 class Player {
+    private static _players: Array<Player> = [];
+    private static _currentPlayerIndex: number = 0;
+    public static readonly currentPlayer: Player = Player._players[Player._currentPlayerIndex]!;
+    public static addPlayer(name: PlayerName):[PlayerName, PlayerNumber] {
+        let playerNumber = Player._players.length + 1
+        Player._players.push(new Player(name, playerNumber));
+        return [name, playerNumber]
+    }
+    public static nextPlayerTurn() {
+        Player._currentPlayerIndex += 1;
+        if (Player._currentPlayerIndex === Player._players.length)
+            Player._currentPlayerIndex = 0;
+        // @ts-ignore
+        Player.currentPlayer = Player._players[Player._currentPlayerIndex]!;
+    }
+
     private _purse: number = 0;
     private penaltyBox: PenaltyBox = new PenaltyBoxOut();
     private playerPlace = 0;
