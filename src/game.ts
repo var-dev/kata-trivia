@@ -1,7 +1,7 @@
 type PlayerName = string;
 type PlayerNumber = number;
 interface PenaltyBox{
-    reportStatus(roll:number, playerName:string):string;
+    reportStatus(roll:number, playerName: PlayerName):string;
     isPlayerAdvancing(roll: number): boolean
     calculatePlace(currentPlace: number, roll:number):number;
     
@@ -20,7 +20,7 @@ class PenaltyBoxIn implements PenaltyBox{
         }
         return playerNewPlace
     }
-    reportStatus(roll: number, playerName:string): string {
+    reportStatus(roll: number, playerName: PlayerName): string {
         if (this.isPlayerAdvancing(roll)) {
             return playerName + " is getting out of the penalty box"
         } else {
@@ -30,7 +30,7 @@ class PenaltyBoxIn implements PenaltyBox{
 }
 
 class PenaltyBoxOut implements PenaltyBox{
-    isPlayerAdvancing(roll:number): boolean { return true}
+    isPlayerAdvancing(roll: number): boolean { return true}
     calculatePlace(currentPlace: number, roll: number): number {
         let playerPlace = currentPlace + roll;
             if (playerPlace > 11) {
@@ -38,25 +38,28 @@ class PenaltyBoxOut implements PenaltyBox{
             }
         return playerPlace
     }
-    reportStatus(roll: number, playerName:string): string { return ''}
+    reportStatus(roll: number, playerName: PlayerName): string { return ''}
 }
 
 
 class Player {
     private static _players: Array<Player> = [];
     private static _currentPlayerIndex: number = 0;
-    public static readonly currentPlayer: Player = Player._players[Player._currentPlayerIndex]!;
+    static _currentPlayer: Player = this._players[this._currentPlayerIndex]!;
+    public static get currentPlayer(): Player {
+        return Player._currentPlayer;
+    }
+
     public static addPlayer(name: PlayerName):[PlayerName, PlayerNumber] {
-        let playerNumber = Player._players.length + 1
-        Player._players.push(new Player(name, playerNumber));
-        return [name, playerNumber]
+        this._players.push(new Player(name));
+        this._currentPlayer = this._players[this._currentPlayerIndex]!;
+        return [name, this._players.length]
     }
     public static nextPlayerTurn() {
-        Player._currentPlayerIndex += 1;
-        if (Player._currentPlayerIndex === Player._players.length)
-            Player._currentPlayerIndex = 0;
-        // @ts-ignore
-        Player.currentPlayer = Player._players[Player._currentPlayerIndex]!;
+        this._currentPlayerIndex += 1;
+        if (this._currentPlayerIndex === this._players.length)
+            this._currentPlayerIndex = 0;
+        this._currentPlayer = this._players[this._currentPlayerIndex]!;
     }
 
     private _purse: number = 0;
@@ -65,9 +68,8 @@ class Player {
     private _isAdvancing = true;
 
 
-    constructor(public readonly name: string, public readonly playerNumber: number) {
-        console.log(name + " was added");
-        console.log("They are player number " + this.playerNumber);
+    private constructor(public readonly name: PlayerName) {
+        
     }
     public toString(): string {
         return this.name;
@@ -94,7 +96,7 @@ class Player {
     getOutOfPenaltyBox(){
         this.penaltyBox = new PenaltyBoxOut();
     }
-    reportPenaltyStatus(roll: number){
+    consoleLogPenaltyStatus(roll: number){
         const result = this.penaltyBox.reportStatus(roll, this.name);
         if(result !== ''){
             console.log(result);
@@ -103,10 +105,6 @@ class Player {
 }
 
 export class Game {
-    private players: Array<Player> = [];
-    private currentPlayerIndex: number = 0;
-    private currentPlayer: Player = this.players[0]!;
-
     private popQuestions: Array<string> = [];
     private scienceQuestions: Array<string> = [];
     private sportsQuestions: Array<string> = [];
@@ -124,17 +122,18 @@ export class Game {
         return "Rock Question " + index;
     }
     public add(name: string): boolean {
-        this.players.push(new Player(name, this.players.length + 1));
-        this.currentPlayer = this.players[0]!;
+        const [playerName, playerNumber] = Player.addPlayer(name);
+        console.log(playerName + " was added");
+        console.log("They are player number " + playerNumber);
         return true;
     }
     public roll(roll: number) {
-        this.currentPlayer.currentPlace = roll;
-        console.log(this.currentPlayer + " is the current player");
+        Player.currentPlayer.currentPlace = roll;
+        console.log(Player.currentPlayer + " is the current player");
         console.log("They have rolled a " + roll);
-        this.currentPlayer.reportPenaltyStatus(roll);
-        if (this.currentPlayer.isAdvancing) {
-            console.log(this.currentPlayer + "'s new location is " + this.currentPlayer.currentPlace);
+        Player.currentPlayer.consoleLogPenaltyStatus(roll);
+        if (Player.currentPlayer.isAdvancing) {
+            console.log(Player.currentPlayer + "'s new location is " + Player.currentPlayer.currentPlace);
             console.log("The category is " + this.currentCategory());
             this.askQuestion();
         }
@@ -150,53 +149,47 @@ export class Game {
             console.log(this.rockQuestions.shift());
     }
     private currentCategory(): string {
-        if (this.currentPlayer!.currentPlace == 0)
+        if (Player.currentPlayer!.currentPlace == 0)
             return 'Pop';
-        if (this.currentPlayer!.currentPlace == 4)
+        if (Player.currentPlayer!.currentPlace == 4)
             return 'Pop';
-        if (this.currentPlayer!.currentPlace == 8)
+        if (Player.currentPlayer!.currentPlace == 8)
             return 'Pop';
-        if (this.currentPlayer!.currentPlace == 1)
+        if (Player.currentPlayer!.currentPlace == 1)
             return 'Science';
-        if (this.currentPlayer!.currentPlace == 5)
+        if (Player.currentPlayer!.currentPlace == 5)
             return 'Science';
-        if (this.currentPlayer!.currentPlace == 9)
+        if (Player.currentPlayer!.currentPlace == 9)
             return 'Science';
-        if (this.currentPlayer!.currentPlace == 2)
+        if (Player.currentPlayer!.currentPlace == 2)
             return 'Sports';
-        if (this.currentPlayer!.currentPlace == 6)
+        if (Player.currentPlayer!.currentPlace == 6)
             return 'Sports';
-        if (this.currentPlayer!.currentPlace == 10)
+        if (Player.currentPlayer!.currentPlace == 10)
             return 'Sports';
         return 'Rock';
     }
     private didPlayerWin(): boolean {
-        return (this.currentPlayer.purse !== 6)
+        return (Player.currentPlayer.purse !== 6)
     }
     public wrongAnswer(): boolean {
         console.log('Question was incorrectly answered');
-        console.log(this.currentPlayer + " was sent to the penalty box");
-        this.currentPlayer.goToPenaltyBox();
-        this.nextPlayerTurn();
+        console.log(Player.currentPlayer + " was sent to the penalty box");
+        Player.currentPlayer.goToPenaltyBox();
+        Player.nextPlayerTurn();
         return true;
     }
     public wasCorrectlyAnswered(): boolean {
-        if (!this.currentPlayer.isAdvancing) {
-            this.nextPlayerTurn();
+        if (!Player.currentPlayer.isAdvancing) {
+            Player.nextPlayerTurn();
             return true;
         }
-        this.currentPlayer.incrementPurse();
-        var winner = this.didPlayerWin();
+        Player.currentPlayer.incrementPurse();
+        let winner = this.didPlayerWin();
         console.log("Answer was correct!!!!");
-        console.log(this.currentPlayer + " now has " + this.currentPlayer.purse + " Gold Coins.");
-        this.nextPlayerTurn();
+        console.log(Player.currentPlayer + " now has " + Player.currentPlayer.purse + " Gold Coins.");
+        Player.nextPlayerTurn();
         return winner;
-    }
-    private nextPlayerTurn() {
-        this.currentPlayerIndex += 1;
-        if (this.currentPlayerIndex === this.players.length)
-            this.currentPlayerIndex = 0;
-        this.currentPlayer = this.players[this.currentPlayerIndex]!;
     }
 }
 
